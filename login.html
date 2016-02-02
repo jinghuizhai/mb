@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html class="login-html">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+		<title>米蝶财务-登录</title>
+		<link rel="stylesheet" type="text/css" href="./src/common.css">	
+		<link rel="stylesheet" href="iconfont/iconfont.css">
+	</head>
+	<body>
+		<div class="cover">
+			<div class="trademark-icon">
+				<i class="icon iconfont">&#xe600;</i>
+			</div>
+			<div class="cover-text">米蝶财务</div>
+		</div>
+		<div class="login">
+			<div class="container">
+				<p class="login-text">登录</p>
+				<form method="post">
+					<div class="form-input">
+						<input type="text" id="phone" placeholder="手机号" maxlength="11" onkeyup="validate()" onfocus="hideBanner(this)" onblur="showBannner(this)" />
+					</div>
+					<div class="form-input">
+						<input type="password" id="password" placeholder="密码" maxlength="20" onkeyup="validate()" onfocus="hideBanner(this)" onblur="showBannner(this)"/>
+					</div>
+					<div class="form-btn">
+						<button id="ok" disabled="disabled" type="button" onclick="check()">确定</button>
+					</div>
+					<a class="forget-text r" href="http://192.168.10.105/mb/forget.html">忘记密码</a>
+				</form>
+			</div>
+		</div>
+		<script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+		<script type="text/javascript">
+			var phoneFocus 		= false,
+				passwordFocus	= false;
+				host = "http://192.168.10.105/accountant/customer/v1/";
+
+			$(document).ready(function(){
+				//toggle 
+				$(".trademark-icon .icon").animate({
+					"fontSize":"80px"
+				});
+				$(".cover-text").animate({
+					"fontSize":"25px"
+				});
+
+				setTimeout(function(){
+					$(".cover").animate({
+						"opacity":0,
+					},function(){
+						$(this).css("zIndex",0);
+					});
+				},1500);
+			});
+			function validate(){
+				var phone 	 = $("#phone").val(),
+					password = $("#password").val();
+				if(/^1[358]\d{9}$/.test(phone) && password.length >= 6){
+					$("#ok").attr("disabled",false);
+				}else{
+					$("#ok").attr("disabled",true);
+				}
+			}
+
+			function hideBanner(othis){
+				phoneFocus 	  = (othis.id == 'phone') 	 ? true : false;
+				passwordFocus = (othis.id == 'password') ? true : false;
+				$(".login").animate({"paddingTop":"0"});
+				$(".login-text").fadeOut();
+			}
+
+			function showBannner(othis){
+				setTimeout(function(){
+					if(!phoneFocus && !passwordFocus){
+						$(".login").animate({"paddingTop":"50px"});	
+						$(".login-text").fadeIn();
+					}
+				},200);
+
+				if(othis.id == "phone"){
+					phoneFocus = false;
+				}
+				if(othis.id == "password"){
+					passwordFocus = false;
+				}
+			}
+
+			function check(){
+				$.post(host+"guest/get",{"phone":$("#phone").val(),"password":$("#password").val()},function(r){
+					var errorCode = r.error_code;
+					if(errorCode == 0){
+						window.location.href = "http://192.168.10.105/mb/index.html";
+					}else{
+						alert("账号或密码错误，请重新登录");
+					}
+				});
+			}
+		</script>
+	</body>
+</html>

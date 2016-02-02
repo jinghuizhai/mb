@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+		<title>找回密码</title>
+		<link rel="stylesheet" type="text/css" href="./src/common.css">	
+	</head>
+	<body>
+		<!-- 悬浮窗口 forget -->
+		<div class="suspension" id="suspension-business">
+			<div class="suspension-title">
+				<span id="suspension-title-text">找回密码</span>
+				<div class="suspension-close" onclick="closeSuspension(this)">
+					<!-- <i class="icon iconfont">&#xe634;</i> -->
+					<a href="http://192.168.10.105/mb/login.html" class="btn btn-blue ml-10">返回登录</a>
+				</div>
+			</div>
+			<div class="suspension-content container pt-10">
+				<div class="form-input rel">
+					<input type="text" id="phone" placeholder="手机号" maxlength="11" onkeyup="checkPhone(this)" />
+					<button class="btn btn-sms btn-blue" id="btn-sms" onclick="sendSms(this)" disabled="disabled">
+						发送验证码
+					</button>
+				</div>
+				<div id="sms-input" class="dn">
+					<div class="form-input">
+						<input type="test" placeholder="验证码" maxlength="6" id="sms" onkeyup="checkSms(this)"/>
+					</div>
+					<div class="form-btn">
+						<button type="button" onclick="sure(this)" disabled="disabled" id="ok">确定</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript">
+			var _host = "http://192.168.10.105/accountant/customer/v1/";
+			var ajax = function(method,url,params,fn,async){
+
+		        async = typeof async === "undefined" ? true:async;
+		        method = method.toUpperCase();
+
+		        var xmlhttp,
+		        	param = '';
+
+		        if(window.XMLHttpRequest){
+		            xmlhttp = new XMLHttpRequest();
+		        }else{
+		            xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+		        }
+		        xmlhttp.onreadystatechange = function(){
+		            if(xmlhttp.readyState == 4 && xmlhttp.status == 200){
+		                if(typeof fn === "function") fn(xmlhttp.responseText);
+		            }
+		        };
+		        for(p in params){
+		        	param = param + "&" + p + "=" + params[p];
+		        }
+		       	param = param.slice(1)+"&random="+Math.random();
+
+		       	if(method === "GET"){
+		       		xmlhttp.open(method,url+"?"+param,async);
+		       		xmlhttp.send();
+		       	}else if(method === "POST"){
+		       		xmlhttp.open(method,url,async);
+		       		xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+		       		xmlhttp.send(param);
+		       	}else{
+		       		if(window.console) console.log('unknow method '+method);
+		       		return false;
+		       	}
+	        }
+
+	        var $post = function(url,params,fn,async){
+		    	ajax("POST",url,params,fn,async);
+		    };
+
+			function checkPhone(othis){
+				var value = othis.value,
+					btnSms = document.getElementById("btn-sms");
+
+				if(/^1[358]\d{9}$/.test(value)){
+					btnSms.disabled = false;
+				}else{
+					btnSms.disabled = true;
+				}
+			}
+
+			function countTimer(dom,value,fn){
+				if(value > 0){
+					dom.innerHTML = value+"秒后可重新发送";
+					setTimeout(function(){
+						value --;						
+						countTimer(dom, value, fn);
+					},1000);
+				}else{
+					dom.disabled = false;
+					dom.innerHTML = "发送验证码";
+					fn();
+				}
+			}
+
+			function checkSms(othis){
+				var value = othis.value,
+					ok = document.getElementById("ok");
+				if(/^[0-9]{6}$/.test(value)){
+					ok.disabled = false;
+				}else{
+					ok.disabled = true;
+				}
+			}
+
+			function sendSms(othis){
+				var phone = document.getElementById("phone").value;
+				othis.disabled = true;
+				$post(_host+"sms/get",{"phone":phone},function(r){
+					r = eval("("+r+")");
+					var errorCode = r.error_code;
+					if(errorCode == 0){
+						countTimer(othis,10,function(){
+							document.getElementById("sms-input").style.display = "block";
+						});
+					}else{
+						switch (errorCode){
+							case 1:
+								alert("手机号码格式不正确");
+								break;
+							case 2:
+								alert("没有此账号,请核对手机号");
+								break;
+							case 4:
+								alert("发送验证码失败");
+								break;
+							default:
+								console.log(errorCode);
+								break;
+						}
+						othis.disabled = false;
+					}
+				});
+			}
+
+			function sure(othis){
+				var sms = document.getElementById("sms").value;
+				othis.disabled = true;
+				$post(_host+"newpassword/get",{"sms":sms},function(r){
+					r = eval("("+r+")");
+					var errorCode = r.error_code;
+					if(errorCode == 0){
+						alert("新密码约10秒后发送到手机，请妥善保存");
+						window.location.href = "http://192.168.10.105/mb/login.html";
+					}else{
+						switch(errorCode){
+							case 6:
+								alert("请先获取验证码");
+								break;
+							case 7:
+								alert("验证码不正确");
+								break;
+							case 13:
+								alert("更新密码失败，请重新获取验证码");
+								break;
+							default:
+								console.log(errorCode);
+								break;
+						}
+						othis.disabled = false;
+					}
+				});
+			}
+		</script>
+	</body>
+</html>

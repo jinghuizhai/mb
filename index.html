@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+	<title></title>
+	<link rel="stylesheet" type="text/css" href="./src/common.css">	
+	<link rel="stylesheet" type="text/css" href="./src/mobilebone.animate.css">	
+	<link rel="stylesheet" type="text/css" href="./src/mobilebone.css">
+	<link rel="stylesheet" href="iconfont/iconfont.css">
+</head>
+<body>
+	<header>
+		<div class="menu-btn l" id="menu-btn" onclick="showMenu()">
+			<i class="icon iconfont">&#xe605;</i>
+		</div>
+		<div class="trademark l">
+			米蝶财务
+		</div>
+		<div class="msg r rel" onclick="showMsg(0)">
+			<i class="icon iconfont">&#xe62a;</i>
+			<b class="red-point msg-point dn" id="msg-point" onclick="cleanMsgPoint(this)"></b>
+		</div>
+	</header>
+	<!-- menu -->
+	<div class="drawer dn" id="drawer-menu" onclick="hideMenu(this)">
+		<div class="drawer-menu" id="drawer-menu-inner">
+			<div class="menu-header" id="company">
+				登录显示公司名
+			</div>
+			<ul class="menu-list">
+				<li class="menu-list-active">
+					<i class="icon iconfont">&#xe60c;</i>
+					首页
+				</li>
+				<li onclick="$('#suspension-editpassword').fadeIn()">
+					<i class="icon iconfont">&#xe625;</i>
+					修改密码
+				</li>
+				<li onclick="logout()">
+					<i class="icon iconfont">&#xe698;</i>
+					登出
+				</li>
+			</ul>
+		</div>
+	</div>
+	<!-- 悬浮窗口 business -->
+	<div class="suspension dn" id="suspension-business">
+		<div class="suspension-title">
+			<span id="suspension-title-text"></span>
+			<div class="suspension-close" onclick="closeSuspension(this)">
+				<i class="icon iconfont">&#xe634;</i>
+			</div>
+		</div>
+		<div class="suspension-content">
+			<div a-controller="progress">
+				<div class="progress-single">
+					<div class="progress-name">
+						{{ name }}
+					</div>
+					<div class="progress-body">
+						<div class="progress-note">
+							{{ note }}
+						</div>
+						<div class="progress-date">
+							{{ date_end }}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 悬浮窗口 msg -->
+	<div class="suspension dn" id="suspension-msg">
+		<div class="suspension-title">
+			<span id="suspension-title-text">消息</span>
+			<div class="suspension-close" onclick="closeSuspension(this)">
+				<i class="icon iconfont">&#xe634;</i>
+			</div>
+		</div>
+		<div class="suspension-content">
+			<div class="no-record-wrap">
+				<a class="no-record dn" id="msg-no-record" onclick="showMsg(1)">
+					查看历史消息			
+				</a>
+			</div>
+			<div a-controller="msg">
+				<div class="progress-single">
+					<div class="progress-name">
+						{{ index }}
+					</div>
+					<div class="progress-body">
+						<div class="progress-title">
+							{{ title }}
+						</div>
+						<div class="progress-note">
+							{{ content }}
+						</div>
+						<div class="progress-date">
+							{{ create_date }}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 悬浮窗口 edit pass -->
+	<div class="suspension dn" id="suspension-editpassword">
+		<div class="suspension-title">
+			<span id="suspension-title-text">修改密码</span>
+			<div class="suspension-close" onclick="closeSuspension(this)">
+				<i class="icon iconfont">&#xe634;</i>
+			</div>
+		</div>
+		<div class="suspension-content container pt-10">
+			<div class="form-input">
+				<input type="password" placeholder="老密码" maxlength="15" id="old-pass" />
+			</div>
+			<div class="form-input">
+				<input type="password" placeholder="新密码" maxlength="15" id="new-pass" />
+			</div>
+			<div class="form-input">
+				<input type="password" placeholder="重复" maxlength="15" id="repeat-pass" />
+			</div>
+			<div class="form-btn">
+				<button type="button" onclick="return editPassword()">确定</button>
+			</div>
+		</div>
+	</div>
+	<!-- business -->
+	<div class="page out" id="page-1">
+		<div class="container">
+			<div a-controller="business-employee">
+				<a class="employee" href="tel:{{ phone }}">
+					<div class="employee-name">
+						{{ name }}
+					</div>
+					<div class="employee-phone">
+						{{ phone }}
+					</div>
+				</a>
+			</div>
+			<div a-controller="business">
+				<div class="single-business" onclick="showSuspension({{ business_id }},'{{ business_name }}')">
+					<div class="business-name">
+						<h2>{{ business_name }}<a class="detail pl-10">查看详细</a></h2>
+					</div>
+					<div class="progress-bar">
+						<div class="progress-bar-inner" style="width:{{ percent }}%">
+							{{ percent }}%
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- accounting -->
+	<div class="page out" id="page-2">
+		<div class="container">
+			<div a-controller="accounting">
+				<a class="employee" href="tel:{{ phone }}">
+					<div class="employee-name">
+						{{ name }}
+					</div>
+					<div class="employee-phone">
+						{{ phone }}
+					</div>
+				</a>
+				<div class="employee-diff dn" id="employee-positive">
+					<h2>还能使用<span class="blue">{{ diff }}</span>天</h2>
+				</div>
+				<div class="employee-diff dn" id="employee-negative">
+					<h2>超时使用<span class="red">{{ diff }}</span>天</h2>
+				</div>
+				<div id="accounting-no-reocrd" class="dn">
+					暂无记录
+				</div>
+				<div class="employee-more">
+					<a onclick="morePayrecord()">{{ more }}</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- tax -->
+	<div class="page out" id="page-3">
+		<div class="container">
+			<div class="date-select fix">
+				<select onchange="reloadTax()" id="tax-year">
+					<option value="2014">2014</option>
+					<option value="2015" selected="selected">2015</option>
+					<option value="2016">2016</option>
+				</select>
+				<select onchange="reloadTax()" id="tax-month">
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+					<option value="4">4</option>
+					<option value="5">5</option>
+					<option value="6">6</option>
+					<option value="7">7</option>
+					<option value="8">8</option>
+					<option value="9">9</option>
+					<option value="10">10</option>
+					<option value="11">11</option>
+					<option value="12" selected="selected">12</option>
+				</select>
+			</div>
+			
+			<div class="tax-table">
+				<div a-controller="count">
+					<div class="tax-title" id="tax-title">
+						<div class="tax-title-cate">
+							国税：{{ nation }}
+						</div>
+						<div class="tax-title-value">
+							地税：{{ local }}
+						</div>
+					</div>
+				</div>
+				<div class="tax-body dn" id="tax-body">
+					<div a-controller="tax">
+						<div class="tax-cate">
+							{{ name }}
+						</div>
+						<div class="tax-value">
+							{{ fee }}
+						</div>
+					</div>
+				</div>
+				<div id="tax-no-record" class="dn">
+					暂无记录
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="bottom-bar">
+		<ul>
+			<li>
+				<a href="#page-1" id="business">
+					<div>
+						<i class="icon iconfont">&#xe62d;</i>
+					</div>
+					工商
+				</a>
+			</li>
+			<li>
+				<a href="#page-2" id="accounting">
+					<div>
+						<i class="icon iconfont">&#xe735;</i>
+					</div>
+					记账
+				</a>
+			</li>
+			<li>
+				<a href="#page-3" id="tax">
+					<div>
+						<i class="icon iconfont">&#xe734;</i>
+					</div>
+					税务
+				</a>
+			</li>
+		</ul>
+	</div>
+	<script type="text/javascript" src="./src/mobilebone.js"></script>
+	<script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+	<script type="text/javascript" src="./src/common.js"></script>
+	<script type="text/javascript">
+		// Mobilebone.captureLink = false;
+	</script>
+</body>
+</html>
